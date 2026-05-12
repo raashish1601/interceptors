@@ -286,6 +286,16 @@ export class MockHttpSocket extends MockSocket {
       })
     }
 
+    // Forward common socket address properties onto this Socket instance.
+    const socketProperties = ['localAddress', 'remoteAddress']
+
+    socketProperties.forEach((propertyName) => {
+      Object.defineProperty(this, propertyName, {
+        enumerable: true,
+        get: () => Reflect.get(socket, propertyName),
+      })
+    })
+
     socket
       .on('lookup', (...args) => this.emit('lookup', ...args))
       .on('connect', () => {
