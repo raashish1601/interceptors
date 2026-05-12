@@ -247,3 +247,25 @@ it('returns socket address for a bypassed request', async () => {
     port: expect.any(Number),
   })
 })
+
+it('exposes localAddress and remoteAddress for a bypassed request', async () => {
+  const socketPromise = new DeferredPromise<{
+    localAddress: string | undefined
+    remoteAddress: string | undefined
+  }>()
+  const request = http.get(httpServer.http.url('/user'))
+  request.once('socket', (socket) => {
+    socket.once('connect', () => {
+      socketPromise.resolve({
+        localAddress: socket.localAddress,
+        remoteAddress: socket.remoteAddress,
+      })
+    })
+  })
+
+  await waitForClientRequest(request)
+  const { localAddress, remoteAddress } = await socketPromise
+
+  expect(localAddress).toEqual(expect.any(String))
+  expect(remoteAddress).toEqual(expect.any(String))
+})
