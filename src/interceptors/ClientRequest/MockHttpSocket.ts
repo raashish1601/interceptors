@@ -65,6 +65,7 @@ export class MockHttpSocket extends MockSocket {
   private socketState: 'unknown' | 'mock' | 'passthrough' = 'unknown'
   private responseParser: HTTPParser<1>
   private responseStream?: Readable
+  private responseStarted = false
   private originalSocket?: net.Socket
 
   constructor(options: MockHttpSocketOptions) {
@@ -171,7 +172,7 @@ export class MockHttpSocket extends MockSocket {
     // can be suppressed by using the "emitClose: false" option.
     freeParser(this.responseParser, this)
 
-    if (error) {
+    if (error && this.responseStarted && !this.destroyed) {
       this.emit('error', error)
     }
 
@@ -654,6 +655,8 @@ export class MockHttpSocket extends MockSocket {
     status,
     statusText
   ) => {
+    this.responseStarted = true
+
     const headers = FetchResponse.parseRawHeaders([
       ...this.responseRawHeadersBuffer,
       ...(rawHeaders || []),
