@@ -23,18 +23,21 @@ declare module 'node:http' {
 
 interface MockAgentOptions {
   customAgent?: http.RequestOptions['agent']
+  signal?: AbortSignal
   onRequest: MockHttpSocketRequestCallback
   onResponse: MockHttpSocketResponseCallback
 }
 
 export class MockAgent extends http.Agent {
   private customAgent?: http.RequestOptions['agent']
+  private signal?: AbortSignal
   private onRequest: MockHttpSocketRequestCallback
   private onResponse: MockHttpSocketResponseCallback
 
   constructor(options: MockAgentOptions) {
     super()
     this.customAgent = options.customAgent
+    this.signal = options.signal
     this.onRequest = options.onRequest
     this.onResponse = options.onResponse
   }
@@ -55,6 +58,7 @@ export class MockAgent extends http.Agent {
 
     const socket = new MockHttpSocket({
       connectionOptions: options,
+      signal: this.signal,
       createConnection: createConnection.bind(
         this.customAgent || this,
         createConnectionOptions,
@@ -70,12 +74,14 @@ export class MockAgent extends http.Agent {
 
 export class MockHttpsAgent extends https.Agent {
   private customAgent?: https.RequestOptions['agent']
+  private signal?: AbortSignal
   private onRequest: MockHttpSocketRequestCallback
   private onResponse: MockHttpSocketResponseCallback
 
   constructor(options: MockAgentOptions) {
     super()
     this.customAgent = options.customAgent
+    this.signal = options.signal
     this.onRequest = options.onRequest
     this.onResponse = options.onResponse
   }
@@ -96,6 +102,7 @@ export class MockHttpsAgent extends https.Agent {
 
     const socket = new MockHttpSocket({
       connectionOptions: options,
+      signal: this.signal,
       createConnection: createConnection.bind(
         this.customAgent || this,
         createConnectionOptions,

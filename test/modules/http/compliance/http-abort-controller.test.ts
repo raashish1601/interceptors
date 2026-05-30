@@ -56,6 +56,39 @@ it('respects the "signal" for a handled request', async () => {
   expect(request.destroyed).toBe(true)
 })
 
+it('forwards the abort signal to the intercepted request instance', async () => {
+  const requestSignalAbortPromise = new DeferredPromise<unknown>()
+
+  interceptor.on('request', ({ request }) => {
+    request.signal.addEventListener(
+      'abort',
+      () => requestSignalAbortPromise.resolve(request.signal.reason),
+      { once: true }
+    )
+  })
+
+  const abortController = new AbortController()
+  const request = http.get(
+    httpServer.http.url('/resource'),
+    {
+      signal: abortController.signal,
+    },
+    () => {
+      // This callback is intentionally left as-is to ensure
+      // the request is not handled in the callback path.
+    }
+  )
+
+  await sleep(0)
+  abortController.abort('abort')
+
+  const requestClosePromise = new DeferredPromise<void>()
+  request.on('close', () => requestClosePromise.resolve())
+  await requestClosePromise
+
+  await expect(requestSignalAbortPromise).resolves.toBe('abort')
+})
+
 it('respects the "signal" for a bypassed request', async () => {
   const abortController = new AbortController()
   const request = http.get(

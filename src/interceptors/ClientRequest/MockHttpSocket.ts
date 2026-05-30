@@ -39,6 +39,7 @@ export type MockHttpSocketResponseCallback = (args: {
 interface MockHttpSocketOptions {
   connectionOptions: HttpConnectionOptions
   createConnection: () => net.Socket
+  signal?: AbortSignal
   onRequest: MockHttpSocketRequestCallback
   onResponse: MockHttpSocketResponseCallback
 }
@@ -52,6 +53,7 @@ export class MockHttpSocket extends MockSocket {
 
   private onRequest: MockHttpSocketRequestCallback
   private onResponse: MockHttpSocketResponseCallback
+  private signal?: AbortSignal
   private responseListenersPromise?: Promise<void>
 
   private requestRawHeadersBuffer: Array<string> = []
@@ -110,6 +112,7 @@ export class MockHttpSocket extends MockSocket {
     this.createConnection = options.createConnection
     this.onRequest = options.onRequest
     this.onResponse = options.onResponse
+    this.signal = options.signal
 
     this.baseUrl = baseUrlFromConnectionOptions(this.connectionOptions)
 
@@ -593,6 +596,7 @@ export class MockHttpSocket extends MockSocket {
       // @ts-expect-error Undocumented Fetch property.
       duplex: canHaveBody ? 'half' : undefined,
       body: canHaveBody ? (Readable.toWeb(this.requestStream!) as any) : null,
+      signal: this.signal,
     })
 
     Reflect.set(this.request, kRequestId, requestId)

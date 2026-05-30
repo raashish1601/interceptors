@@ -47,6 +47,7 @@ export class ClientRequestInterceptor extends Interceptor<HttpRequestEventMap> {
         const Agent = options.protocol === 'https:' ? MockHttpsAgent : MockAgent
         const mockAgent = new Agent({
           customAgent: options.agent,
+          signal: options.signal,
           onRequest,
           onResponse,
         })
@@ -64,6 +65,7 @@ export class ClientRequestInterceptor extends Interceptor<HttpRequestEventMap> {
         )
         const mockAgent = new MockAgent({
           customAgent: options.agent,
+          signal: options.signal,
           onRequest,
           onResponse,
         })
@@ -82,6 +84,7 @@ export class ClientRequestInterceptor extends Interceptor<HttpRequestEventMap> {
 
         const mockAgent = new MockAgent({
           customAgent: options.agent,
+          signal: options.signal,
           onRequest,
           onResponse,
         })
@@ -104,6 +107,7 @@ export class ClientRequestInterceptor extends Interceptor<HttpRequestEventMap> {
 
         const mockAgent = new MockHttpsAgent({
           customAgent: options.agent,
+          signal: options.signal,
           onRequest,
           onResponse,
         })
@@ -122,6 +126,7 @@ export class ClientRequestInterceptor extends Interceptor<HttpRequestEventMap> {
 
         const mockAgent = new MockHttpsAgent({
           customAgent: options.agent,
+          signal: options.signal,
           onRequest,
           onResponse,
         })
